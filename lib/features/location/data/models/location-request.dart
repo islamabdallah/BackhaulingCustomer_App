@@ -1,6 +1,7 @@
 // To parse this JSON data, do
 //
-//     final requestModel = requestModelFromJson(jsonString);
+//     final locationRequestModel = locationRequestModelFromJson(jsonString);
+
 import 'dart:convert';
 
 LocationRequestModel locationRequestModelFromJson(String str) => LocationRequestModel.fromJson(json.decode(str));
@@ -9,71 +10,77 @@ String locationRequestModelToJson(LocationRequestModel data) => json.encode(data
 
 class LocationRequestModel {
   LocationRequestModel({
-    this.userId,
-    this.cityId,
-    this.governorateId,
-    this.longitude,
-    this.latitude,
     this.name,
-    this.detailedAddress,
     this.contactName,
     this.contactNumber,
+    this.governorate,
+    this.city,
+    this.detailedAddress,
+    this.mapAddress,
+    this.longitude,
+    this.latitude,
+    this.userId,
   });
 
-  String userId;
-  int cityId;
-  int governorateId;
-  String longitude;
-  String latitude;
   String name;
-  String detailedAddress;
   String contactName;
   String contactNumber;
+  String governorate;
+  String city;
+  String detailedAddress;
+  String mapAddress;
+  double longitude;
+  double latitude;
+  String userId;
 
   LocationRequestModel copyWith({
-    String userId,
-    int cityId,
-    int governorateId,
-    String longitude,
-    String latitude,
     String name,
-    String detailedAddress,
     String contactName,
     String contactNumber,
+    String governorate,
+    String city,
+    String detailedAddress,
+    String mapAddress,
+    double longitude,
+    double latitude,
+    String userId,
   }) =>
       LocationRequestModel(
-        userId: userId ?? this.userId,
-        cityId: cityId ?? this.cityId,
-        governorateId: governorateId ?? this.governorateId,
+        name: name ?? this.name,
+        contactName: contactName ?? this.contactName,
+        contactNumber: contactNumber ?? this.contactNumber,
+        governorate: governorate ?? this.governorate,
+        city: city ?? this.city,
+        detailedAddress: detailedAddress ?? this.detailedAddress,
+        mapAddress: mapAddress ?? this.mapAddress,
         longitude: longitude ?? this.longitude,
         latitude: latitude ?? this.latitude,
-        name: name ?? this.name,
-        detailedAddress: detailedAddress ?? this.detailedAddress,
-          contactName: contactName ?? this.contactName,
-          contactNumber: contactNumber ?? this.contactNumber
+        userId: userId ?? this.userId,
       );
 
   factory LocationRequestModel.fromJson(Map<String, dynamic> json) => LocationRequestModel(
-    userId: json["userId"] == null ? null : json["userId"],
-    cityId: json["cityId"] == null ? null : json["cityId"],
-    governorateId: json["governorateId"] == null ? null : json["governorateId"],
-    longitude: json["longitude"] == null ? null : json["longitude"],
-    latitude: json["latitude"] == null ? null : json["latitude"],
-    name: json["name"] == null ? null : json["name"],
-    detailedAddress: json["detailedAddress"] == null ? null : json["detailedAddress"],
-    contactName: json["contactName"] == null ? null : json["contactName"],
-    contactNumber: json["contactNumber"] == null ? null : json["contactNumber"],
+    name: json["Name"] == null ? null : json["Name"],
+    contactName: json["ContactName"] == null ? null : json["ContactName"],
+    contactNumber: json["ContactNumber"] == null ? null : json["ContactNumber"],
+    governorate: json["Governorate"] == null ? null : json["Governorate"],
+    city: json["City"] == null ? null : json["City"],
+    detailedAddress: json["DetailedAddress"] == null ? null : json["DetailedAddress"],
+    mapAddress: json["MapAddress"] == null ? null : json["MapAddress"],
+    longitude: json["Longitude"] == null ? null : json["Longitude"].toDouble(),
+    latitude: json["Latitude"] == null ? null : json["Latitude"].toDouble(),
+    userId: json["UserId"] == null ? null : json["UserId"],
   );
 
   Map<String, dynamic> toJson() => {
-    "userId": userId == null ? null : userId,
-     "cityId": cityId == null ? null : cityId,
-    "governorateId": governorateId == null ? null : governorateId,
-    "longitude": longitude == null ? null : longitude,
-    "latitude": latitude == null ? null : latitude,
-    "name": name == null ? null : name,
-    "detailedAddress": detailedAddress == null ? null : detailedAddress,
-    "contactName": contactName == null ? null : contactName,
-    "contactNumber": contactNumber == null ? null :contactNumber,
+    "Name": name == null ? null : name,
+    "ContactName": contactName == null ? null : contactName,
+    "ContactNumber": contactNumber == null ? null : contactNumber,
+    "Governorate": governorate == null ? null : governorate,
+    "City": city == null ? null : city,
+    "DetailedAddress": detailedAddress == null ? null : detailedAddress,
+    "MapAddress": mapAddress == null ? null : mapAddress,
+    "Longitude": longitude == null ? null : longitude,
+    "Latitude": latitude == null ? null : latitude,
+    "UserId": userId == null ? null : userId,
   };
 }

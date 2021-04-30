@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:localize_and_translate/localize_and_translate.dart';
 
 loadingAlertDialog(BuildContext context){
   showDialog(barrierDismissible: false,
@@ -8,7 +9,7 @@ loadingAlertDialog(BuildContext context){
         content: new Row(
           children: [
             CircularProgressIndicator(),
-            Container(margin: EdgeInsets.only(left: 5),child:Text("جاري التحميل" )),
+            Container(margin: EdgeInsets.only(left: 5),child:Text((translator.currentLanguage == 'en') ? "Loading":"جاري التحميل")),
           ],),
       );
     },

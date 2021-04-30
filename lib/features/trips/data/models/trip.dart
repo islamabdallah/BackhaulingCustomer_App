@@ -25,6 +25,7 @@ class TripModel {
     this.driver,
     this.lastUpdate,
     this.tripDestination,
+    this.imageUrl,
   });
 
   int id;
@@ -45,6 +46,7 @@ class TripModel {
   DriverModel driver;
   String lastUpdate;
   String tripDestination;
+  String imageUrl;
 
   TripModel copyWith({
     int id,
@@ -65,6 +67,7 @@ class TripModel {
     DriverModel driver,
     String lastUpdate,
     String tripDestination,
+    String imageUrl,
   }) =>
       TripModel(
         id: id ?? this.id,
@@ -85,6 +88,7 @@ class TripModel {
         driver: driver ?? this.driver,
         lastUpdate: lastUpdate ?? this.lastUpdate,
         tripDestination: tripDestination ?? this.tripDestination,
+        imageUrl: imageUrl ?? this.imageUrl,
       );
 
   factory TripModel.fromJson(Map<String, dynamic> json) => TripModel(
@@ -106,6 +110,7 @@ class TripModel {
     driver: json["driver"] == null ? null : DriverModel.fromJson(json["driver"]),
     lastUpdate: json["lastUpdate"] == null ? null : json["lastUpdate"],
     tripDestination: json["tripDestination"] == null ? null : json["tripDestination"],
+      imageUrl: json["imageUrl"] == null ? null : json["imageUrl"],
   );
 
   Map<String, dynamic> toJson() => {
@@ -127,6 +132,7 @@ class TripModel {
     "driver": driver == null ? null : driver.toJson(),
     "lastUpdate": lastUpdate == null ? null : lastUpdate,
     "tripDestination": tripDestination == null ? null : tripDestination,
+    "imageUrl": imageUrl == null ? null : imageUrl,
   };
 }
 

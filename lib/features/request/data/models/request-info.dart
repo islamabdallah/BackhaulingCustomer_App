@@ -2,7 +2,7 @@
 //     final infoModel = infoModelFromJson(jsonString);
 
 import 'dart:convert';
-import 'package:customerapp/features/request/data/models/truck-data.dart';
+import 'package:customerapp/features/request/data/models/dropDown-data.dart';
 import 'package:customerapp/features/request/data/models/location.dart';
 
 String locationModelToJson(LocationModel data) => json.encode(data.toJson());
@@ -20,15 +20,15 @@ class InfoModel {
   });
 
   List<LocationModel> locations;
-  List<TruckDataModel> unitTypes;
-  List<TruckDataModel> packages;
-  List<TruckDataModel> truckTypes;
+  List<DropDownDataModel> unitTypes;
+  List<DropDownDataModel> packages;
+  List<DropDownDataModel> truckTypes;
 
   InfoModel copyWith({
     List<LocationModel> locations,
-    List<TruckDataModel> unitTypes,
-    List<TruckDataModel> packages,
-    List<TruckDataModel> truckTypes,
+    List<DropDownDataModel> unitTypes,
+    List<DropDownDataModel> packages,
+    List<DropDownDataModel> truckTypes,
   }) =>
       InfoModel(
         locations: locations ?? this.locations,
@@ -39,9 +39,9 @@ class InfoModel {
 
   factory InfoModel.fromJson(Map<String, dynamic> json) => InfoModel(
     locations: json["locations"] == null ? null : List<LocationModel>.from(json["locations"].map((x) => LocationModel.fromJson(x))),
-    unitTypes: json["unitTypes"] == null ? null : List<TruckDataModel>.from(json["unitTypes"].map((x) => TruckDataModel.fromJson(x))),
-    packages: json["packages"] == null ? null : List<TruckDataModel>.from(json["packages"].map((x) => TruckDataModel.fromJson(x))),
-    truckTypes: json["truckTypes"] == null ? null : List<TruckDataModel>.from(json["truckTypes"].map((x) => TruckDataModel.fromJson(x))),
+    unitTypes: json["unitTypes"] == null ? null : List<DropDownDataModel>.from(json["unitTypes"].map((x) => DropDownDataModel.fromJson(x))),
+    packages: json["packages"] == null ? null : List<DropDownDataModel>.from(json["packages"].map((x) => DropDownDataModel.fromJson(x))),
+    truckTypes: json["truckTypes"] == null ? null : List<DropDownDataModel>.from(json["truckTypes"].map((x) => DropDownDataModel.fromJson(x))),
   );
 
   Map<String, dynamic> toJson() => {

@@ -15,8 +15,7 @@ class CustomDialogs {
     showDialog(
         barrierDismissible: barrierDismissible,
         context: context,
-        child: StatefulBuilder(
-          builder: (BuildContext context, setTheState) {
+        builder: (BuildContext context)  {
             return AlertDialog(
               content: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -79,6 +78,6 @@ class CustomDialogs {
               ),
             );
           },
-        ));
+        );
   }
 }

@@ -51,7 +51,6 @@ class MyApp extends StatelessWidget {
             SplashWidget.routeName: (context) => SplashWidget(),
             LoginWidget.routeName: (context) => LoginWidget(),
             SignUpWidget.routeName: (context) => SignUpWidget(),
-            ProfileWidget.routeName: (context) => ProfileWidget(),
             ForgotPasswordWidget.routeName: (context) => ForgotPasswordWidget(),
             RequestWidget.routeName: (context) => RequestWidget(),
             HomeWidget.routeName: (context) => HomeWidget(),
@@ -59,6 +58,8 @@ class MyApp extends StatelessWidget {
             LocationWidget.routeName: (context) =>LocationWidget(),
             RequestListWidget.routeName: (context) => RequestListWidget(),
             TripsWidget.routeName: (context) => TripsWidget(), //map
+            ProfileWidget.routeName: (context) => ProfileWidget(),
+
         }
     );
   }

@@ -24,6 +24,7 @@ class ProfileWidgetState extends State<ProfileWidget> {
     {'name': 'english', 'value': 'en'}
   ];
   UserModel userModel = new UserModel();
+  String firstLetter = 'A';
 
   @override
   void initState() {
@@ -43,8 +44,13 @@ class ProfileWidgetState extends State<ProfileWidget> {
 
   currentUser() async {
     var data = await DBHelper.getData('cemex_user');
+    print(data);
     setState(() {
-      if (data.length > 0) userModel = UserModel.fromJson(data[0]);
+      if (data.length > 0){
+        userModel = UserModel.fromSqlJson(data[0]);
+        print(userModel);
+        firstLetter =  userModel.userName.substring(0,1).toUpperCase();
+      }
     });
   }
 
@@ -52,7 +58,6 @@ class ProfileWidgetState extends State<ProfileWidget> {
   Widget build(BuildContext context) {
     // TODO: implement build
     return Scaffold(
-        drawer: NavigationDrawer(),
         appBar: AppBar(
           title: Text(translator.translate('myAccount'),
               style: TextStyle(
@@ -82,9 +87,7 @@ class ProfileWidgetState extends State<ProfileWidget> {
                         backgroundColor: Colors.grey,
 //                      backgroundImage: AssetImage(SHHNATY_BACK_GROUND),
                         radius: 60.0,
-                        child: Text(
-//                userModel?.email.substring(0,1).toUpperCase() ??
-                          'A',
+                        child: Text(firstLetter,
                           style: TextStyle(fontSize: 40.0),
                         ),
                       ),
@@ -92,8 +95,7 @@ class ProfileWidgetState extends State<ProfileWidget> {
                         height: 5,
                       ),
                       // userName
-                      Text(
-                        "Islam Abdallah",
+                      Text('${userModel.userName} ',
                         style: TextStyle(
                             fontSize: 18.0,
                             color: Colors.white,
@@ -157,8 +159,7 @@ class ProfileWidgetState extends State<ProfileWidget> {
                           SizedBox(
                             width: 7,
                           ),
-                          Text(
-                            "Sement Assuit",
+                          Text('${userModel.companyName} ',
                             style: TextStyle(
                               color: Colors.blue,
                               fontSize: 20.0,
@@ -178,8 +179,7 @@ class ProfileWidgetState extends State<ProfileWidget> {
                           SizedBox(
                             width: 7,
                           ),
-                          Text(
-                            "01068068153",
+                          Text('${userModel.companyPhone} ',
                             style: TextStyle(
                               color: Colors.blueGrey,
                               fontSize: 18.0,
@@ -198,8 +198,7 @@ class ProfileWidgetState extends State<ProfileWidget> {
                           SizedBox(
                             width: 7,
                           ),
-                          Text(
-                            "cement",
+                          Text('${userModel.industry} ',
                             style: TextStyle(
                               color: Colors.blueGrey,
                               fontSize: 18.0,
@@ -218,8 +217,7 @@ class ProfileWidgetState extends State<ProfileWidget> {
                           SizedBox(
                             width: 7,
                           ),
-                          Text(
-                            "assuit-assuit",
+                          Text('${userModel.companyAddress} ',
                             style: TextStyle(
                               color: Colors.blueGrey,
                               fontSize: 18.0,
@@ -281,8 +279,7 @@ class ProfileWidgetState extends State<ProfileWidget> {
                           SizedBox(
                             width: 7,
                           ),
-                          Text(
-                            "Islam abdallah",
+                          Text('${userModel.companyName} ',
                             style: TextStyle(
                                 fontSize: 18.0,
                                 color: Colors.blueGrey,
@@ -300,7 +297,7 @@ class ProfileWidgetState extends State<ProfileWidget> {
                             width: 7,
                           ),
                           Text(
-                            "${userModel.email}",
+                            "${userModel.userName}",
                             style: TextStyle(
                                 fontSize: 18.0,
                                 color: Colors.blueGrey,
@@ -318,8 +315,7 @@ class ProfileWidgetState extends State<ProfileWidget> {
                           SizedBox(
                             width: 7,
                           ),
-                          Text(
-                            "01068068153",
+                          Text('${userModel.contactPhone} ',
                             style: TextStyle(
                               color: Colors.blueGrey,
                               fontSize: 18.0,
@@ -442,8 +438,8 @@ class ProfileWidgetState extends State<ProfileWidget> {
                           onTap: () {
                             DBHelper.deleteUser(userModel.id);
                             Navigator.pop(context);
-                            Navigator.pushReplacementNamed(
-                                context, LoginWidget.routeName);
+                            Navigator.of(context).pushNamedAndRemoveUntil(LoginWidget.routeName, (Route<dynamic> route) => false);
+
                           })
                     ],
                   ),

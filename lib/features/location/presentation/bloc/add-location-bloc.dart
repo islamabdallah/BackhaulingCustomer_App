@@ -1,3 +1,4 @@
+import 'package:customerapp/core/errors/custom_error.dart';
 import 'package:customerapp/features/location/data/repositories/add-location-repositories-implementation.dart';
 import 'package:customerapp/features/request/presentation/bloc/request-events.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -21,14 +22,16 @@ class AddLocationBloc extends Bloc<BaseLocationEvent, BaseLocationState> {
         print(result.data);
         yield LocationSuccessState(requestFormData:result.data);
       }else{
-        yield LocationFailedState(result.error);
+        final CustomError error = result.error;
+        yield LocationFailedState(error);
       }
 
     } else if(event is SaveLocationEvent) {
       yield LocationLoadingState();
       final res = await repo.saveLocationData(event.requestModel);
       if(res.hasErrorOnly) {
-        yield LocationFailedState(res.error);
+        final CustomError error = res.error ;
+        yield LocationFailedState(error);
       } else {
         yield LocationSaveState();
       }

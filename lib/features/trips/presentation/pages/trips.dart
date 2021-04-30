@@ -10,7 +10,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+//import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:localize_and_translate/localize_and_translate.dart';
@@ -46,12 +46,13 @@ class TripsWidgetState extends State<TripsWidget> {
   int tripIndex = 0;
   bool _visible = false;
   BitmapDescriptor icon;
+  Timer _timer;
 
   Map<MarkerId, Marker> markers = {};
   Map<PolylineId, Polyline> polylines = {};
   List<LatLng> polylineCoordinates = [];
 
-  PolylinePoints polylinePoints = PolylinePoints();
+//  PolylinePoints polylinePoints = PolylinePoints();
   String googleAPiKey = MAP_API_KEY;
 
   List<TripModel> allLocations = [];
@@ -96,8 +97,17 @@ class TripsWidgetState extends State<TripsWidget> {
     super.initState();
     _pageController = PageController(initialPage: 1, viewportFraction: 0.8)
       ..addListener(_onScroll);
+    _timer = Timer.periodic(Duration(seconds: 1200), (timer) {
+      _bloc.add(GetTripEvent());
+    });
   }
 
+  @override
+  void dispose() {
+    _timer.cancel();
+    _bloc.close();
+    super.dispose();
+  }
   void _onScroll() {
 
     if (_pageController.page.toInt() != prevPage) {
@@ -106,13 +116,16 @@ class TripsWidgetState extends State<TripsWidget> {
     }
   }
   moveCamera() {
-    _controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
-        target: LatLng(allLocations[_pageController.page.toInt()].latitude, allLocations[_pageController.page.toInt()].longitude),
-        zoom: 14.0,
-        bearing: 45.0,
-        tilt: 45.0)
-    )
-    );
+    if(noTrip.isNotEmpty) {
+      _controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
+          target: LatLng(noTrip[_pageController.page.toInt()].latitude,
+              noTrip[_pageController.page.toInt()].longitude),
+          zoom: 14.0,
+          bearing: 45.0,
+          tilt: 45.0)
+      )
+      );
+    }
   }
   getUserLocation() async {
     currentLocation = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
@@ -127,7 +140,6 @@ class TripsWidgetState extends State<TripsWidget> {
       bitmapDescriptorGreen = _bitmapDescriptorGreen;
     });
   }
-
   _launchCaller(phone) async {
     final url = "tel:$phone";
     if (await canLaunch(url)) {
@@ -218,7 +230,7 @@ class TripsWidgetState extends State<TripsWidget> {
 //          (choice.status != 'Idle') ? BitmapDescriptor.hueGreen : BitmapDescriptor.hueRed
 //      ),
 //    );
-   var index =   allLocations.indexWhere((element) => element.id  == choice.id);
+   var index =   noTrip.indexWhere((element) => element.id  == choice.id);
 //   print(index);
     _pageController.jumpToPage(index);
 //    _controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
@@ -321,7 +333,7 @@ class TripsWidgetState extends State<TripsWidget> {
                                       bottomRight: Radius.circular(10.0),
                                       topRight: Radius.circular(10.0)),
                                   image: DecorationImage(
-                                      image: AssetImage('assets/images/bg1.jpg'),
+                                      image: noTrip[index].imageUrl.isNotEmpty ? NetworkImage( noTrip[index].imageUrl) :  AssetImage('assets/images/bg1.jpg'),
                                       fit: BoxFit.cover)
                               )),
                           SizedBox(width: 5.0),
@@ -330,13 +342,13 @@ class TripsWidgetState extends State<TripsWidget> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  allLocations[index].tripDestination,
+                                  noTrip[index].tripDestination,
                                   style: TextStyle(
                                       fontSize: 12.5,
                                       fontWeight: FontWeight.bold),
                                 ),
                                 Text(
-                                  allLocations[index].driver.name,
+                                  noTrip[index].driver.name,
                                   style: TextStyle(
                                       fontSize: 12.0,
                                       fontWeight: FontWeight.w600),
@@ -344,7 +356,7 @@ class TripsWidgetState extends State<TripsWidget> {
                                 Container(
                                   width: 170.0,
                                   child: Text(
-                                    allLocations[index].truckNumber,
+                                    noTrip[index].truckNumber,
                                     style: TextStyle(
                                         fontSize: 11.0,
                                         fontWeight: FontWeight.w300),
@@ -394,7 +406,6 @@ class TripsWidgetState extends State<TripsWidget> {
                             zoomGesturesEnabled: true,
                             zoomControlsEnabled: true,
                             markers: Set<Marker>.of(markers.values),
-                            polylines: Set<Polyline>.of(polylines.values),
                             gestureRecognizers: Set()
                               ..add(Factory<PanGestureRecognizer>(() =>
                                   PanGestureRecognizer()))..add(
@@ -521,7 +532,7 @@ class TripsWidgetState extends State<TripsWidget> {
                                               bottomRight: Radius.circular(10.0),
                                               topRight: Radius.circular(10.0)),
                                           image: DecorationImage(
-                                              image: AssetImage('assets/images/bg1.jpg'),
+                                              image: currentTrip.imageUrl.isNotEmpty ? NetworkImage( currentTrip.imageUrl) :  AssetImage('assets/images/bg1.jpg'),
                                               fit: BoxFit.cover)
                                       )),
                                   SizedBox(width: 5.0),
@@ -559,7 +570,7 @@ class TripsWidgetState extends State<TripsWidget> {
                           width: MediaQuery.of(context).size.width,
                           child: PageView.builder(
                             controller: _pageController,
-                            itemCount: allLocations.length,
+                            itemCount: noTrip.length,
                             itemBuilder: (BuildContext context, int index) {
 //                              final item = allLocations[index];
                               return _coffeeShopList(index);
@@ -572,30 +583,31 @@ class TripsWidgetState extends State<TripsWidget> {
                 }, listener: (context, state) {
             if (state is TripSuccessState) {
               print(state.trips.data);
+               markers.clear();
                noTrip = state.trips.data.where((e) => e.status != 'Idle').toList();
               print(noTrip);
               state.trips.data.forEach((element) {
-                Marker marker = Marker(
-                      markerId: MarkerId(element.id.toString()),
-                      position:  LatLng(element.latitude, element.longitude),
-                      infoWindow: InfoWindow(
+                if(element.status != 'Idle') {
+                  Marker marker = Marker(
+                    markerId: MarkerId(element.id.toString()),
+                    position: LatLng(element.latitude, element.longitude),
+                    infoWindow: InfoWindow(
                         title: element.tripDestination,
-                          snippet: element.truckNumber
-                      ),
+                        snippet: element.truckNumber
+                    ),
 
-                    icon: (element.status != 'Idle') ? bitmapDescriptorGreen : bitmapDescriptorRed,
+                    icon: (element.status != 'Idle')
+                        ? bitmapDescriptorGreen
+                        : bitmapDescriptorRed,
                     onTap: () {
-                  //  _pageController.jumpToPage(state.trips.data.indexOf(element));
-                        currentTrip = element;
-                        showInfo = !showInfo;
-                        setState(() {});
-
-                  },
-                );
-
-
-                markers[MarkerId(element.id.toString())] = marker;
-
+                      //  _pageController.jumpToPage(state.trips.data.indexOf(element));
+                      currentTrip = element;
+                      showInfo = !showInfo;
+                      setState(() {});
+                    },
+                  );
+                  markers[MarkerId(element.id.toString())] = marker;
+                }
               });
               setState(() {
                 allLocations = state.trips.data;
@@ -623,27 +635,27 @@ class TripsWidgetState extends State<TripsWidget> {
   }
 
   _addPolyLine() {
-    PolylineId id = PolylineId("poly");
-    Polyline polyline = Polyline(
-        polylineId: id, color: Colors.red, points: polylineCoordinates,width: 5);
-    polylines[id] = polyline;
-    setState(() {});
+//    PolylineId id = PolylineId("poly");
+//    Polyline polyline = Polyline(
+//        polylineId: id, color: Colors.red, points: polylineCoordinates,width: 5);
+//    polylines[id] = polyline;
+//    setState(() {});
   }
 
-  _getPolyline() async {
-
-//    PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
-//        googleAPiKey,
-//        PointLatLng(double.parse(trip.srcLat) , double.parse(trip.srcLong)),
-//        PointLatLng(double.parse(trip.destLat), double.parse(trip.destLong)),
-//        travelMode: TravelMode.driving,);
-//    if (result.points.isNotEmpty) {
-//      result.points.forEach((PointLatLng point) {
-//        polylineCoordinates.add(LatLng(point.latitude, point.longitude));
-//      });
-//    }
-    _addPolyLine();
-  }
+//  _getPolyline() async {
+//
+////    PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
+////        googleAPiKey,
+////        PointLatLng(double.parse(trip.srcLat) , double.parse(trip.srcLong)),
+////        PointLatLng(double.parse(trip.destLat), double.parse(trip.destLong)),
+////        travelMode: TravelMode.driving,);
+////    if (result.points.isNotEmpty) {
+////      result.points.forEach((PointLatLng point) {
+////        polylineCoordinates.add(LatLng(point.latitude, point.longitude));
+////      });
+////    }
+//    _addPolyLine();
+//  }
 }
 
 class MarkerGenerator {

@@ -1,7 +1,3 @@
-// To parse this JSON data, do
-//
-//     final userModel = userModelFromJson(jsonString);
-
 import 'dart:convert';
 
 UserModel userModelFromJson(String str) => UserModel.fromJson(json.decode(str));
@@ -16,7 +12,7 @@ class UserModel {
     this.contactName,
     this.contactPhone,
     this.industryId,
-    this.industryObj,
+    this.status,
     this.industry,
     this.isActive,
     this.id,
@@ -42,7 +38,7 @@ class UserModel {
   String contactName;
   String contactPhone;
   int industryId;
-  String industryObj;
+  String status;
   String industry;
   bool isActive;
   String id;
@@ -68,7 +64,7 @@ class UserModel {
     String contactName,
     String contactPhone,
     int industryId,
-    String industryObj,
+    String status,
     String industry,
     bool isActive,
     String id,
@@ -94,7 +90,7 @@ class UserModel {
         contactName: contactName ?? this.contactName,
         contactPhone: contactPhone ?? this.contactPhone,
         industryId: industryId ?? this.industryId,
-        industryObj: industryObj ?? this.industryObj,
+        status: status ?? this.status,
         industry: industry ?? this.industry,
         isActive: isActive ?? this.isActive,
         id: id ?? this.id,
@@ -121,9 +117,35 @@ class UserModel {
     contactName: json["contactName"] == null ? null : json["contactName"],
     contactPhone: json["contactPhone"] == null ? null : json["contactPhone"],
     industryId: json["industryId"] == null ? null : json["industryId"],
-    industryObj: json["industryObj"] == null ? null : json["industryObj"],
+    status: json["status"] == null ? null : json["status"],
     industry: json["industry"] == null ? null : json["industry"],
     isActive: json["isActive"] == null ? null : json["isActive"],
+    id: json["id"] == null ? null : json["id"],
+    userName: json["userName"] == null ? null : json["userName"],
+    normalizedUserName: json["normalizedUserName"] == null ? null : json["normalizedUserName"],
+    email: json["email"] == null ? null : json["email"],
+    normalizedEmail: json["normalizedEmail"] == null ? null : json["normalizedEmail"],
+    emailConfirmed: json["emailConfirmed"] == null ? null : json["emailConfirmed"],
+    password: json["password"] == null ? null : json["password"],
+    securityStamp: json["securityStamp"] == null ? null : json["securityStamp"],
+    concurrencyStamp: json["concurrencyStamp"] == null ? null : json["concurrencyStamp"],
+    phoneNumber: json["phoneNumber"] == null ? null : json["phoneNumber"],
+    phoneNumberConfirmed: json["phoneNumberConfirmed"] == null ? null : json["phoneNumberConfirmed"],
+    twoFactorEnabled: json["twoFactorEnabled"] == null ? null : json["twoFactorEnabled"],
+    lockoutEnd: json["lockoutEnd"] == null ? null : json["lockoutEnd"],
+    lockoutEnabled: json["lockoutEnabled"] == null ? null : json["lockoutEnabled"],
+    accessFailedCount: json["accessFailedCount"] == null ? null : json["accessFailedCount"],
+  );
+  factory UserModel.fromSqlJson(Map<String, dynamic> json) => UserModel(
+    companyName: json["companyName"] == null ? null : json["companyName"],
+    companyPhone: json["companyPhone"] == null ? null : json["companyPhone"],
+    companyAddress: json["companyAddress"] == null ? null : json["companyAddress"],
+    contactName: json["contactName"] == null ? null : json["contactName"],
+    contactPhone: json["contactPhone"] == null ? null : json["contactPhone"],
+    industryId: json["industryId"] == null ? null : json["industryId"],
+    status: json["status"] == null ? null : json["status"],
+    industry: json["industry"] == null ? null : json["industry"],
+    isActive: json["isActive"] == null ? null : json["isActive"] == 1 ? true: false,
     id: json["id"] == null ? null : json["id"],
     userName: json["userName"] == null ? null : json["userName"],
     normalizedUserName: json["normalizedUserName"] == null ? null : json["normalizedUserName"],
@@ -148,7 +170,7 @@ class UserModel {
     "contactName": contactName == null ? null : contactName,
     "contactPhone": contactPhone == null ? null : contactPhone,
     "industryId": industryId == null ? null : industryId,
-    "industryObj": industryObj == null ? null : industryObj,
+    "status": status == null ? null : status,
     "industry": industry == null ? null : industry,
     "isActive": isActive == null ? null : isActive,
     "id": id == null ? null : id,

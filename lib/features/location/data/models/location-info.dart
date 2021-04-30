@@ -8,29 +8,29 @@ String locationInfoModelToJson(LocationInfoModel data) => json.encode(data.toJso
 
 class LocationInfoModel {
   LocationInfoModel({
-    this.gov,
+    this.governorates,
     this.cities,
   });
 
-  List<AreaDataModel> gov;
-  List<AreaDataModel> cities;
+  List<Governorate> governorates;
+  List<City> cities;
 
   LocationInfoModel copyWith({
-    List<AreaDataModel> gov,
-    List<AreaDataModel> cities
+    List<Governorate> governorates,
+    List<City> cities
   }) =>
       LocationInfoModel(
-        gov: gov ?? this.gov,
+        governorates: governorates ?? this.governorates,
         cities: cities ?? this.cities,
       );
 
   factory LocationInfoModel.fromJson(Map<String, dynamic> json) => LocationInfoModel(
-    gov: json["gov"] == null ? null : List<AreaDataModel>.from(json["gov"].map((x) => AreaDataModel.fromJson(x))),
-    cities: json["cities"] == null ? null : List<AreaDataModel>.from(json["cities"].map((x) => AreaDataModel.fromJson(x))),
+    governorates: json["governorates"] == null ? null : List<Governorate>.from(json["governorates"].map((x) => Governorate.fromJson(x))),
+    cities: json["cities"] == null ? null : List<City>.from(json["cities"].map((x) => City.fromJson(x))),
   );
 
   Map<String, dynamic> toJson() => {
-    "gov": gov == null ? null : List<dynamic>.from(gov.map((x) => x.toJson())),
+    "governorates": governorates == null ? null : List<dynamic>.from(governorates.map((x) => x.toJson())),
     "cities": cities == null ? null : List<dynamic>.from(cities.map((x) => x.toJson())),
   };
 }

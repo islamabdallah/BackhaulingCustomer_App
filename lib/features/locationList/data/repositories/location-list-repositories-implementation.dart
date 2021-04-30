@@ -15,8 +15,9 @@ class LocationListRepositoryImplementation implements LocationListRepository {
 
   @override
   Future<Result<dynamic>> getLocationListData () async {
-    var dataDB =  await DBHelper.getData('cemex_user');
-    final userModel = UserModel.fromJson(dataDB[0]);
+    var data =  await DBHelper.getData('cemex_user');
+    var user = data[0];
+    final userModel = UserModel.fromSqlJson(user);
     var clientId = userModel.id;
     final response = await CoreRepository.request(url: getLocations+'/'+clientId, method: HttpMethod.GET, converter: null,);
     if (response.hasDataOnly) {

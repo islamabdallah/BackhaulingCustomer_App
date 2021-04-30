@@ -6,11 +6,15 @@ const APP_NAME = 'customerapp';
 // URL
 const String baseUrl = "http://105.198.228.83:90/api";
 const String loginUrl = baseUrl + '/client/login';
-const String getRequest = baseUrl +'/request/new';
-const String saveRequest = baseUrl +'/request/new';
+const String registerUrl = baseUrl + '/client/register';
 const String getTrips = baseUrl +'/client/trucks';
 const String getLocations = baseUrl +'/locations';
-
+const String newLocation = baseUrl +'/Location/new';
+const String getRequest = baseUrl +'/request/new';
+const String saveRequest = baseUrl +'/request/new';
+const String requestList = baseUrl + '/request/all';
+const String cancelRequestUrl = baseUrl +'/request/cancel';
+const String reviewRequestUrl = baseUrl +'/request/rate';
 
 
 const FONT_FAMILY = 'Almarai';

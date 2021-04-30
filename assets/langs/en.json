@@ -49,13 +49,13 @@
   "language": "Change Language",
   "logout" : "logout",
   "addLocation": "Create Location",
-  "name": "name",
+  "name": "Name",
   "contactName": "Contact Name",
   "contactPhone": "Contact Number",
   "gov": "Government",
   "city": "City",
   "address": "Address",
-  "saveLocation": "Save Location",
+  "saveLocation": "Add Location",
   "forgotPass": "Forgot Password",
   "forgotPassTitle": "Enter your email to receive your password on it.",
   "save" : "Send",
@@ -70,7 +70,12 @@
   "myAccount": "My Account",
   "companyDetails": "Company Details",
   "personal": "Personal Details",
-  "settings": "Settings"
-
+  "settings": "Settings",
+  "other": "Other",
+  "all" : "All",
+  "active" : "Active ",
+  "notActive" : "Not Active ",
+  "phone": "Mobile",
+  "noData": "No Data Found Now .."
 
 }

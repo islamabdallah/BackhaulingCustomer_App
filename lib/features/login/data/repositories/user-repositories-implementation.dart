@@ -17,7 +17,7 @@ class LoginRepositoryImplementation implements UserRepository {
   final  httpCall = HttpService();
 
   @override
-  Future<Result<RemoteResultModel<String>>> loginUser (UserModel userModel) async {
+  Future<Result<RemoteResultModel<dynamic>>> loginUser (UserModel userModel) async {
     LocalStorageService localStorage = LocalStorageService();
     print( userModel.toJson());
     var userData = {
@@ -30,12 +30,13 @@ class LoginRepositoryImplementation implements UserRepository {
     if (response.hasDataOnly) {
       print(response.data);
       final res = response.data;
-      final _data = RemoteResultModel<String>.fromJson(res);
+      final _data = RemoteResultModel.fromJson(res);
       if (_data.success) {
-        localStorage.setDriverID(_data.data);
-        userModel.id = _data.data;
-        print(userModel.toJson());
-        DBHelper.insert('cemex_user', userModel.toJson());
+        final res = _data.data;
+        var user = UserModel.fromJson(res);
+        var data =  user.toJson();
+        data['isActive'] =  user.isActive ? 1: 0;
+        DBHelper.insert('cemex_user', data);
         return Result(data: _data);
       } else {
        final msg =  translator.currentLanguage == 'en' ?_data.msgEN :_data.msgAR;

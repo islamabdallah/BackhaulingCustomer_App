@@ -1,7 +1,10 @@
-import 'package:customerapp/core/base_bloc/base_bloc.dart';
-import 'package:customerapp/features/login/data/models/user.dart';
+import 'package:customerapp/features/signup/data/models/registerData.dart';
 
-class  SignUpEvent extends BaseEvent {
-  final UserModel userModel;
-  SignUpEvent({this.userModel});
+class BaseSignUpEvent{}
+
+class GetIndustryEvent extends BaseSignUpEvent{}
+
+class  SignUpEvent extends BaseSignUpEvent {
+  final RegisterModel registerModel;
+  SignUpEvent({this.registerModel});
 }

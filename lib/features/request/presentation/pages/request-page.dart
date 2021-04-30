@@ -3,7 +3,7 @@ import 'package:customerapp/core/flutter_datetime_picker.dart';
 import 'package:customerapp/core/ui/styles/global_styles.dart';
 import 'package:customerapp/features/request/data/models/location.dart';
 import 'package:customerapp/features/request/data/models/request.dart';
-import 'package:customerapp/features/request/data/models/truck-data.dart';
+import 'package:customerapp/features/request/data/models/dropDown-data.dart';
 import 'package:customerapp/features/request/presentation/bloc/request-bloc.dart';
 import 'package:customerapp/features/request/presentation/bloc/request-events.dart';
 import 'package:customerapp/features/request/presentation/bloc/request-state.dart';
@@ -29,9 +29,9 @@ class RequestWidgetState extends State<RequestWidget> {
 
   LocationModel _selectedSource;
   LocationModel _selectedDestination;
-  TruckDataModel _selectedTruckType;
-  TruckDataModel _selectedPackage;
-  TruckDataModel _selectedUnit;
+  DropDownDataModel _selectedTruckType;
+  DropDownDataModel _selectedPackage;
+  DropDownDataModel _selectedUnit;
 
   TextEditingController accessoriesController = TextEditingController();
   TextEditingController capacityController = TextEditingController();
@@ -45,9 +45,9 @@ class RequestWidgetState extends State<RequestWidget> {
   List<LocationModel>  sources = [];
   List<LocationModel>  destinations = [];
 
-  List<TruckDataModel> unitTypes = [];
-  List<TruckDataModel> packages = [];
-  List<TruckDataModel> truckTypes = [];
+  List<DropDownDataModel> unitTypes = [];
+  List<DropDownDataModel> packages = [];
+  List<DropDownDataModel> truckTypes = [];
 
   DateTime pickUpDate;
   DateTime deliverDate;
@@ -66,6 +66,7 @@ class RequestWidgetState extends State<RequestWidget> {
   final format = DateFormat("yyyy-MM-dd HH:mm");
 
   goTo(int step) {
+    print(step);
     setState(() => currentStep = step);
   }
 
@@ -181,7 +182,7 @@ class RequestWidgetState extends State<RequestWidget> {
                               type: StepperType.horizontal,
                               currentStep: currentStep,
                               onStepContinue: () => next(context),
-                              onStepTapped: (step) => goTo(step),
+                              onStepTapped: (step) => null,
                               onStepCancel: cancel,
                               controlsBuilder: (BuildContext context,{VoidCallback onStepContinue,VoidCallback onStepCancel})
                               {
@@ -294,7 +295,9 @@ class RequestWidgetState extends State<RequestWidget> {
                                           SizedBox(height:20.0),
                                           DateTimeField(
                                             controller: pickUpDateController,
-                                            validator: (value) => value == null ? translator.translate('required') : null,
+                                            validator: (value){
+                                             return  pickUpDate == null ? translator.translate('required') : null;}
+                                              ,
                                             decoration: InputDecoration(
                                               border: OutlineInputBorder(),
                                               labelText: translator.translate('pickUpDate'),
@@ -306,7 +309,7 @@ class RequestWidgetState extends State<RequestWidget> {
                                             ),
                                             style: TextStyle(fontFamily: FONT_FAMILY,fontWeight: FontWeight.w400, color: Colors.black45),
 
-                                            format: DateFormat("HH:mm dd-MM-yyyy "),
+                                            format: DateFormat("dd-MM-yyyy HH:mm "),
                                             onShowPicker: (context, currentValue) async {
                                               final date = await showDatePicker(
                                                   context: context,
@@ -367,7 +370,7 @@ class RequestWidgetState extends State<RequestWidget> {
                                 SizedBox(height:20.0),
                                           DateTimeField(
                                             controller: deliverDateController,
-                                            validator: (value) => value == null ? translator.translate('required') : null,
+                                            validator: (value) => deliverDate == null ? translator.translate('required') : null,
                                             decoration: InputDecoration(
                                               border: OutlineInputBorder(),
                                               labelText: translator.translate('pickUpDate'),
@@ -378,7 +381,7 @@ class RequestWidgetState extends State<RequestWidget> {
                                               ),
                                             ),
                                             style: TextStyle(fontFamily: FONT_FAMILY,fontWeight: FontWeight.w400, color: Colors.black45),
-                                            format:  DateFormat("HH:mm dd-MM-yyyy"),
+                                            format:  DateFormat("dd-MM-yyyy HH:mm"),
                                             onShowPicker: (context, currentValue) async {
                                               final date = await showDatePicker(
                                                   context: context,
@@ -450,7 +453,7 @@ class RequestWidgetState extends State<RequestWidget> {
                                                 mainAxisSize: MainAxisSize.min,
                                                 mainAxisAlignment: MainAxisAlignment.start,
                                                 children: <Widget>[
-                                                DropdownButtonFormField<TruckDataModel>(
+                                                DropdownButtonFormField<DropDownDataModel>(
                                                   decoration: InputDecoration(
                                                       border: OutlineInputBorder(),
                                                       labelText: translator.translate('truckType'),
@@ -462,13 +465,13 @@ class RequestWidgetState extends State<RequestWidget> {
                                                  // iconSize: 40.0,
                                                   value: _selectedTruckType,
                                                   isExpanded: true,
-                                                  onChanged: (TruckDataModel value) {
+                                                  onChanged: (DropDownDataModel value) {
                                                     setState(() {
                                                       _selectedTruckType = value;
                                                     });
                                                   },
-                                                  items: truckTypes.map((TruckDataModel unitType) {
-                                                    return  DropdownMenuItem<TruckDataModel>(
+                                                  items: truckTypes.map((DropDownDataModel unitType) {
+                                                    return  DropdownMenuItem<DropDownDataModel>(
                                                       value: unitType,
                                                       child: Row(
                                                         children: <Widget>[
@@ -529,7 +532,7 @@ class RequestWidgetState extends State<RequestWidget> {
                                                     mainAxisSize: MainAxisSize.min,
                                                     mainAxisAlignment: MainAxisAlignment.start,
                                                     children: <Widget>[
-                                                      DropdownButtonFormField<TruckDataModel>(
+                                                      DropdownButtonFormField<DropDownDataModel>(
                                                         decoration: InputDecoration(
                                                             border: OutlineInputBorder(),
                                                             labelText: translator.translate('package'),
@@ -541,13 +544,13 @@ class RequestWidgetState extends State<RequestWidget> {
                                                        // iconSize: 40.0,
                                                         value: _selectedPackage,
                                                         isExpanded: true,
-                                                        onChanged: (TruckDataModel value) {
+                                                        onChanged: (DropDownDataModel value) {
                                                           setState(() {
                                                             _selectedPackage = value;
                                                           });
                                                         },
-                                                        items: packages.map((TruckDataModel unitType) {
-                                                          return  DropdownMenuItem<TruckDataModel>(
+                                                        items: packages.map((DropDownDataModel unitType) {
+                                                          return  DropdownMenuItem<DropDownDataModel>(
                                                             value: unitType,
                                                             child:  Text(
                                                               (translator.currentLanguage == 'en')?  unitType.nameEn : unitType.nameAr,
@@ -558,7 +561,7 @@ class RequestWidgetState extends State<RequestWidget> {
                                                         }).toList(),
                                                       ) ,
                                                       if(_selectedPackage?.nameEn != 'Shipment' && _selectedPackage != null)    SizedBox(height:20.0),
-                                                      if(_selectedPackage?.nameEn != 'Shipment' && _selectedPackage != null)   DropdownButtonFormField<TruckDataModel>(
+                                                      if(_selectedPackage?.nameEn != 'Shipment' && _selectedPackage != null)   DropdownButtonFormField<DropDownDataModel>(
                                                         decoration: InputDecoration(
                                                             border: OutlineInputBorder(),
                                                             labelText: translator.translate('unitType'),
@@ -570,13 +573,13 @@ class RequestWidgetState extends State<RequestWidget> {
                                                        // iconSize: 40.0,
                                                         value: _selectedUnit,
                                                         isExpanded: true,
-                                                        onChanged: (TruckDataModel value) {
+                                                        onChanged: (DropDownDataModel value) {
                                                           setState(() {
                                                             _selectedUnit = value;
                                                           });
                                                         },
-                                                        items: unitTypes.map((TruckDataModel unitType) {
-                                                          return  DropdownMenuItem<TruckDataModel>(
+                                                        items: unitTypes.map((DropDownDataModel unitType) {
+                                                          return  DropdownMenuItem<DropDownDataModel>(
                                                             value: unitType,
                                                             child: Row(
                                                               children: <Widget>[
@@ -629,456 +632,6 @@ class RequestWidgetState extends State<RequestWidget> {
                               ],
                             ),
                           ),
-//                    Card(
-//                        margin: EdgeInsets.symmetric(vertical: 10.0,horizontal: 8.0),
-//
-//                        child: Padding(
-//                            padding: const EdgeInsets.only(left:15.0,right: 15.0,top:30,bottom: 10),
-//                            child:Column(
-//                            mainAxisSize: MainAxisSize.min,
-//                            mainAxisAlignment: MainAxisAlignment.start,
-//                                children: <Widget>[
-//                                  DropdownButtonFormField<LocationModel>(
-//                                    decoration: InputDecoration(
-//                                        border: OutlineInputBorder(),
-//                                        labelText: 'Source',
-//                                        contentPadding: EdgeInsets.all(3.0),
-//                                        hintMaxLines: 1
-//                                    ),
-//                                    style: TextStyle(color: Colors.black, ),
-//                                    validator: (value) => value == null ? 'field required' : null,
-//                                    iconSize: 40.0,
-//                                    value: _selectedSource,
-//                                    isExpanded: true,
-//                                    onChanged: (LocationModel value) {
-//                                      var _destinations = sources.where((element) => element.id != value.id).toList();
-//                                      setState(() {
-//                                        _selectedSource = value;
-//                                        destinations = _destinations;
-//                                        _selectedDestination = null;
-//                                      });
-//                                    },
-//                                    items: sources.map((LocationModel source) {
-//                                      return  DropdownMenuItem<LocationModel>(
-//                                        value: source,
-//                                        child: Text(
-//                                          source.name, overflow: TextOverflow.ellipsis,
-//                                          maxLines: 1,
-//                                          style:  TextStyle(color: Colors.black),
-//                                        ),
-//                                      );
-//                                    }).toList(),) ,
-//                                  SizedBox(height:20.0),
-//                                  DropdownButtonFormField<LocationModel>(
-//                                    decoration: InputDecoration(
-//                                        border: OutlineInputBorder(),
-//                                        labelText: 'destination',
-//                                        contentPadding: EdgeInsets.all(3.0),
-//                                        hintMaxLines: 1
-//                                    ),
-//                                    style: TextStyle(color: Colors.black, ),
-//                                    validator: (value) => value == null ? 'field required' : null,
-//                                    iconSize: 40.0,
-//                                    value: _selectedDestination,
-//                                    isExpanded: true,
-//                                    isDense: false,
-//                                    onChanged: (LocationModel value) {
-//                                      setState(() {
-//                                        _selectedDestination = value;
-//                                      });
-//                                    },
-//                                    items: destinations.map((LocationModel dest) {
-//                                      return  DropdownMenuItem<LocationModel>(
-//                                        value: dest,
-//                                        child:Text(
-//                                          dest.name, overflow: TextOverflow.ellipsis,
-//                                          maxLines: 1,
-//                                          softWrap: true,
-//                                          style:  TextStyle(color: Colors.black),
-//                                        ),
-//                                      );
-//                                    }).toList(),) ,
-//                                  SizedBox(height:20.0),
-//                                  TextFormField(
-//                                    controller: pickUpDateController,
-//                                    onTap: () {
-//                                      FocusScope.of(context).requestFocus(new FocusNode());
-//                                      DatePicker.showDateTimePicker(context,
-//                                          showTitleActions: true,
-//                                          minTime: DateTime.now(),
-//                                          maxTime: DateTime(2050, 1, 1, 0, 0, 0),
-//                                          onChanged: (date) {}, onConfirm: (date) {
-//                                            print(date);
-//                                            setState(() {
-//                                              pickUpDate = date;
-//                                            });
-//                                            pickUpDateController.text = date.toString();
-//                                          }, currentTime: DateTime.now(), locale: LocaleType.en);
-//                                    },
-//                                    decoration: InputDecoration(
-//                                      border: OutlineInputBorder(),
-//                                      labelText: 'Pickup Date',
-//                                      contentPadding: EdgeInsets.all(3.0),
-//                                    ),
-//                                    validator: (value) => value == null ? 'field required' : null,
-//
-//                                  ),
-//                                  SizedBox(height:20.0),
-//                                  TextFormField(
-//                                    controller: deliverDateController,
-//                                    onTap: () {
-//                                      print(pickUpDate);
-//                                      FocusScope.of(context).requestFocus(new FocusNode());
-//                                      DatePicker.showDateTimePicker(context,
-//                                          showTitleActions: true,
-//                                          minTime:  pickUpDate,
-//                                          maxTime: DateTime(2050, 1, 1, 0, 0, 0),
-//                                          onChanged: (date) {}, onConfirm: (date) {
-//                                            setState(() {
-//                                              deliverDate = date;
-//                                            });
-//                                            deliverDateController.text = date.toString();
-//                                          }, currentTime: pickUpDate, locale: LocaleType.en);
-//                                    },
-//                                    decoration: InputDecoration(
-//                                      border: OutlineInputBorder(),
-//                                      labelText: 'Delivery Date',
-//                                      contentPadding: EdgeInsets.all(3.0),
-//
-//                                    ),
-//                                    validator: (value) => value == null ? 'field required' : null,
-//
-//                                  ),
-//                              ]
-//                            ),
-//                        )
-//                    ),
-//                          Card( margin: EdgeInsets.symmetric(vertical: 10.0,horizontal: 8.0),
-//                            child:  Column(
-//                                  mainAxisSize: MainAxisSize.min,
-//                                  mainAxisAlignment: MainAxisAlignment.start,
-//                                  children: <Widget>[
-//                                    // source and  Destination
-//                                   Padding(
-//                               padding: const EdgeInsets.only(left:15.0,right: 15.0,top:30,bottom: 10),
-//                              child: Row(
-//                                mainAxisSize: MainAxisSize.min,
-//                                children: [
-//                                Expanded(
-//                                    flex: 1,
-//                                    child:  DropdownButtonFormField<LocationModel>(
-//                                      decoration: InputDecoration(
-//                                          border: OutlineInputBorder(),
-//                                          labelText: 'Source',
-//                                          contentPadding: EdgeInsets.all(3.0),
-//                                          hintMaxLines: 1
-//                                      ),
-//                                        style: TextStyle(color: Colors.black, ),
-//                                        validator: (value) => value == null ? 'field required' : null,
-//                                        iconSize: 40.0,
-//                                        value: _selectedSource,
-//                                        isExpanded: true,
-//                                        onChanged: (LocationModel value) {
-//                                          var _destinations = sources.where((element) => element.id != value.id).toList();
-//                                          setState(() {
-//                                            _selectedSource = value;
-//                                            destinations = _destinations;
-//                                            _selectedDestination = null;
-//                                          });
-//                                        },
-//                                        items: sources.map((LocationModel source) {
-//                                          return  DropdownMenuItem<LocationModel>(
-//                                            value: source,
-//                                            child: Text(
-//                                                  source.name, overflow: TextOverflow.ellipsis,
-//                                                  maxLines: 1,
-//                                                  style:  TextStyle(color: Colors.black),
-//                                                ),
-//                                          );
-//                                        }).toList(),) ,
-//
-//                                ),
-//                                SizedBox(width:20.0),
-//                                Expanded(
-//                                    flex: 1,
-//                                     child: DropdownButtonFormField<LocationModel>(
-//                                        decoration: InputDecoration(
-//                                            border: OutlineInputBorder(),
-//                                            labelText: 'destination',
-//                                          contentPadding: EdgeInsets.all(3.0),
-//                                          hintMaxLines: 1
-//                                        ),
-//                                        style: TextStyle(color: Colors.black, ),
-//                                        validator: (value) => value == null ? 'field required' : null,
-//                                        iconSize: 40.0,
-//                                        value: _selectedDestination,
-//                                        isExpanded: true,
-//                                        isDense: false,
-//                                        onChanged: (LocationModel value) {
-//                                          setState(() {
-//                                            _selectedDestination = value;
-//                                          });
-//                                        },
-//                                        items: destinations.map((LocationModel dest) {
-//                                          return  DropdownMenuItem<LocationModel>(
-//                                            value: dest,
-//                                            child:Text(
-//                                                  dest.name, overflow: TextOverflow.ellipsis,
-//                                                  maxLines: 1,
-//                                                  softWrap: true,
-//                                                  style:  TextStyle(color: Colors.black),
-//                                                ),
-//                                          );
-//                                        }).toList(),) ,
-//                                    )
-//                              ],)
-//
-//                          ),
-//                                  // puckup Date and  Delivery Date
-//                                   Padding(
-//                              padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10.0),
-//                              child: Row( children: [
-//                                Expanded(
-//                              flex: 1,
-//                              child: TextFormField(
-//                                controller: pickUpDateController,
-//                                onTap: () {
-//                                  FocusScope.of(context).requestFocus(new FocusNode());
-//                                  DatePicker.showDateTimePicker(context,
-//                                      showTitleActions: true,
-//                                      minTime: DateTime.now(),
-//                                      maxTime: DateTime(2050, 1, 1, 0, 0, 0),
-//                                      onChanged: (date) {}, onConfirm: (date) {
-//                                    print(date);
-//                                      setState(() {
-//                                        pickUpDate = date;
-//                                      });
-//                                      pickUpDateController.text = date.toString();
-//                                      }, currentTime: DateTime.now(), locale: LocaleType.en);
-//                                },
-//                                  decoration: InputDecoration(
-//                                      border: OutlineInputBorder(),
-//                                      labelText: 'Pickup Date',
-//                                      contentPadding: EdgeInsets.all(3.0),
-//                                  ),
-//                                validator: (value) => value == null ? 'field required' : null,
-//
-//                              ),
-//                            ),
-//                                SizedBox(width:10.0),
-//                                Expanded(
-//                                  flex: 1,
-//                                    child: TextFormField(
-//                                      controller: deliverDateController,
-//                                      onTap: () {
-//                                        print(pickUpDate);
-//                                        FocusScope.of(context).requestFocus(new FocusNode());
-//                                        DatePicker.showDateTimePicker(context,
-//                                            showTitleActions: true,
-//                                            minTime:  pickUpDate,
-//                                            maxTime: DateTime(2050, 1, 1, 0, 0, 0),
-//                                            onChanged: (date) {}, onConfirm: (date) {
-//                                              setState(() {
-//                                                deliverDate = date;
-//                                              });
-//                                              deliverDateController.text = date.toString();
-//                                            }, currentTime: pickUpDate, locale: LocaleType.en);
-//                                      },
-//                                      decoration: InputDecoration(
-//                                          border: OutlineInputBorder(),
-//                                          labelText: 'Delivery Date',
-//                                        contentPadding: EdgeInsets.all(3.0),
-//
-//                                      ),
-//                                            validator: (value) => value == null ? 'field required' : null,
-//
-//                              ),
-//                              ),
-//                          ])
-//                          ),
-//                                  ]),
-//                          ),
-                          // truck type and  Numbers
-//                          Padding(
-//                              padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10.0),
-//                              child:Row(children: [
-//                                Expanded(
-//                                    flex: 1,
-//                                    child: DropdownButtonFormField<TruckDataModel>(
-//                                      decoration: InputDecoration(
-//                                          border: OutlineInputBorder(),
-//                                          labelText: 'Truck Type',
-//                                          contentPadding: EdgeInsets.all(3.0),
-//                                          hintMaxLines: 1
-//                                      ),
-//                                      style: TextStyle(color: Colors.black, ),
-//                                      validator: (value) => value == null ? 'field required' : null,
-//                                        iconSize: 40.0,
-//                                        value: _selectedTruckType,
-//                                        isExpanded: true,
-//                                        onChanged: (TruckDataModel value) {
-//                                          setState(() {
-//                                            _selectedTruckType = value;
-//                                          });
-//                                        },
-//                                        items: truckTypes.map((TruckDataModel unitType) {
-//                                          return  DropdownMenuItem<TruckDataModel>(
-//                                            value: unitType,
-//                                            child: Row(
-//                                              children: <Widget>[
-//                                                Text(
-//                                                  unitType.nameEn,
-//                                                  style:  TextStyle(color: Colors.black),
-//                                                ),
-//                                              ],
-//                                            ),
-//                                          );
-//                                        }).toList(),) ,
-//                                    ),
-//
-//                                SizedBox(width:10.0),
-//                                Expanded(
-//                                    flex: 1,
-//                                    child:     TextFormField(
-//                                      decoration: InputDecoration(
-//                                          border: OutlineInputBorder(),
-//                                          labelText: 'Number of Trucks',
-//                                        contentPadding: EdgeInsets.all(3.0),
-//                                      ),
-//                                      keyboardType: TextInputType.phone,
-//                                      controller: truckNumberController,
-//                                      validator: validateTruckNumber,
-//                                      onChanged: (String val) {
-////                                this.user?.email = emailController.text.toString();
-//                                      },
-//                                    ),
-//                                ),
-//                              ],)
-//                          ),
-                          //accessories
-//                          Padding(
-//                            padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10.0),
-//                            child:
-//                            TextFormField(
-//                              decoration: InputDecoration(
-//                                  border: OutlineInputBorder(),
-//                                  labelText: 'Accessories',
-//                              ),
-//                              keyboardType: TextInputType.text,
-//                              controller: accessoriesController,
-//                              validator: null,
-//                              onChanged: (String val) {
-////                                this.user?.email = emailController.text.toString();
-//                              },
-//                            ),
-//                          ),
-                          //package
-//                          Padding(
-//                              padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10.0),
-//                            child:Row(children: [
-//                              Expanded(
-//                                  flex: 1,
-//                                  child:
-//                                  DropdownButtonFormField<TruckDataModel>(
-//                                    decoration: InputDecoration(
-//                                    border: OutlineInputBorder(),
-//                                    labelText: 'Package',
-//                                    contentPadding: EdgeInsets.all(3.0),
-//                                    hintMaxLines: 1
-//                                    ),
-//                                    style: TextStyle(color: Colors.black, ),
-//                                    validator: (value) => value == null ? 'field required' : null,
-//                                  iconSize: 40.0,
-//                                  value: _selectedPackage,
-//                                  isExpanded: true,
-//                                  onChanged: (TruckDataModel value) {
-//                                    setState(() {
-//                                      _selectedPackage = value;
-//                                    });
-//                                  },
-//                                  items: packages.map((TruckDataModel unitType) {
-//                                    return  DropdownMenuItem<TruckDataModel>(
-//                                      value: unitType,
-//                                      child:  Text(
-//                                            unitType.nameEn,
-//                                            style:  TextStyle(color: Colors.black),
-//                                          ),
-//
-//                                    );
-//                                  }).toList(),
-//                                ) ,
-//                  ),
-//                              if(_selectedPackage?.nameEn != 'Shipment' && _selectedPackage != null)   SizedBox(width:10.0),
-//                              if(_selectedPackage?.nameEn != 'Shipment' && _selectedPackage != null) Expanded(
-//                                flex: 1,
-//                                child: DropdownButtonFormField<TruckDataModel>(
-//                                decoration: InputDecoration(
-//                                    border: OutlineInputBorder(),
-//                                    labelText: 'Unit',
-//                                    contentPadding: EdgeInsets.all(3.0),
-//                                    hintMaxLines: 1
-//                                ),
-//                                style: TextStyle(color: Colors.black, ),
-//                                validator: (value) => value == null ? 'field required' : null,
-//                                iconSize: 40.0,
-//                                value: _selectedUnit,
-//                                isExpanded: true,
-//                                onChanged: (TruckDataModel value) {
-//                                  setState(() {
-//                                    _selectedUnit = value;
-//                                  });
-//                                },
-//                                items: unitTypes.map((TruckDataModel unitType) {
-//                                  return  DropdownMenuItem<TruckDataModel>(
-//                                    value: unitType,
-//                                    child: Row(
-//                                      children: <Widget>[
-//                                        Text(
-//                                          unitType.nameEn,
-//                                          style:  TextStyle(color: Colors.black),
-//                                        ),
-//                                      ],
-//                                    ),
-//                                  );
-//                                }).toList(),) ,
-//                            ),
-//                            ]),
-//                          ),
-                          //capacity per unit
-//                          Padding(
-//                            padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10.0),
-//                            child: TextFormField(
-//                              decoration: InputDecoration(
-//                                  border: OutlineInputBorder(),
-//                                  labelText: ( _selectedPackage?.nameEn != 'Shipment' && _selectedPackage != null) ?'Capacity Per Unit': 'Max Capacity / TN',
-//                                  hintText: 'Capacity',
-//                                contentPadding: EdgeInsets.all(3.0),
-//                              ),
-//                              keyboardType: TextInputType.number,
-//                              controller: capacityController,
-//                              validator: validateCapacity,
-//                              onChanged: (String val) {
-////                                this.user?.email = emailController.text.toString();
-//                              },
-//                            ),
-//                          ),
-//                          // comment
-//                          Padding(
-//                            //padding: const EdgeInsets.only(left:15.0,right: 15.0,top:0,bottom: 0),
-//                            padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10.0),
-//                            child: TextFormField(
-//                              decoration: InputDecoration(
-//                                  border: OutlineInputBorder(),
-//                                  labelText: 'Comment',
-//                                  hintText: 'Enter your comment'),
-//                              keyboardType: TextInputType.text,
-//                              controller: commentController,
-//                              validator: null,
-//                              onChanged: (String val) {
-////                                this.user?.email = emailController.text.toString();
-//                              },
-//                            ),
-//                          ),
                           SizedBox(height:20.0),
                          if (state is RequestFailedState)  Text('يوجد خطاء برجاء المحاوله مره ثانيه',style: TextStyle(
                               color: Theme.of(context).primaryColor,
@@ -1140,7 +693,11 @@ class RequestWidgetState extends State<RequestWidget> {
                   }
                   if (state is RequestSaveState) {
                     Navigator.pop(context);
+//                    Navigator.pushReplacementNamed(context, RequestListWidget.routeName);
+                    Navigator.pop(context);
                     Navigator.pushReplacementNamed(context, RequestListWidget.routeName);
+//                    Navigator.of(context).pushNamedAndRemoveUntil(RequestListWidget.routeName, (Route<dynamic> route) => false);
+
                   }
                   if (state is RequestLoadingState ) loadingAlertDialog(context);
                   if (state is RequestSuccessState) Navigator.of(context).pop();

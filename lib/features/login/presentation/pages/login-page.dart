@@ -106,12 +106,13 @@ class LoginWidgetState extends State<LoginWidget> {
             BlocConsumer(
                 cubit: _bloc,
                 builder: (context, state) {
-                  if (state is LoginFailedState) {
-                    if (_clicked) {
-                      _clicked = false;
-                      Navigator.pop(context);
-                    }
-                  }
+//                  if (state is LoginFailedState) {
+//                    if (_clicked) {
+//                      _clicked = false;
+//                      Navigator.pop(context);
+//                    }
+//
+//                  }
 
                   return Form(
                     key: _formKey,
@@ -190,11 +191,8 @@ class LoginWidgetState extends State<LoginWidget> {
                                   return;
                                 }
                                 if (_formKey.currentState.validate()) {
-                                  setState(() {
-                                    _clicked = true;
-                                  });
+
                                   _bloc.add(LoginEvent(userModel: this.user));
-                                  loadingAlertDialog(context);
                                 }
 
                               },
@@ -210,10 +208,11 @@ class LoginWidgetState extends State<LoginWidget> {
                 listener: (context, state) {
                   if (state is LoginSuccessState) {
                     Navigator.pop(context);
-                    Navigator.pushReplacementNamed(context, HomeWidget.routeName);
+                    Navigator.pop(context);
+                    Navigator.of(context).pushNamedAndRemoveUntil(HomeWidget.routeName, (Route<dynamic> route) => false);
                   }
-
-
+                  if (state is LoginFailedState)  Navigator.pop(context);
+                  if (state is LoginLoadingState) loadingAlertDialog(context);
                 }),
             SizedBox(
               height: 60,

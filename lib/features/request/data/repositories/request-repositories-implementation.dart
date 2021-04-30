@@ -4,7 +4,6 @@ import 'package:customerapp/core/errors/custom_error.dart';
 import 'package:customerapp/core/repositories/core_repository.dart';
 import 'package:customerapp/core/results/result.dart';
 import 'package:customerapp/core/models/empty_response_model.dart';
-import 'package:customerapp/core/services/local_storage/local_storage_service.dart';
 import 'package:customerapp/core/sqllite/sqlite_api.dart';
 import 'package:customerapp/features/login/data/models/user.dart';
 import 'package:customerapp/core/services/http_service/http_service.dart';
@@ -19,7 +18,7 @@ class RequestRepositoryImplementation implements RequestRepository {
   @override
   Future<Result<dynamic>> getRequestData () async {
     var dataDB =  await DBHelper.getData('cemex_user');
-    final userModel = UserModel.fromJson(dataDB[0]);
+    final userModel = UserModel.fromSqlJson(dataDB[0]);
 //    LocalStorageService localStorage = LocalStorageService();
     var clientId = userModel.id;
 //    Map<String, String> queryParameter = {
@@ -108,7 +107,7 @@ class RequestRepositoryImplementation implements RequestRepository {
   Future<Result<RemoteResultModel<String>>> saveRequestData(RequestModel requestData) async {
     print (requestData);
     var dataDB =  await DBHelper.getData('cemex_user');
-    final userModel = UserModel.fromJson(dataDB[0]);
+    final userModel = UserModel.fromSqlJson(dataDB[0]);
     var clientId = userModel.id;
     requestData.clientId = clientId;
     // TODO: implement registerTruckNumber

@@ -1,9 +1,14 @@
 import 'dart:ui';
 import 'package:customerapp/core/constants.dart';
 import 'package:customerapp/features/login/presentation/pages/login-page.dart';
+import 'package:customerapp/features/request/data/models/dropDown-data.dart';
+import 'package:customerapp/features/share/custom-dialog.dart';
 import 'package:customerapp/features/share/loading-dialog.dart';
+import 'package:customerapp/features/signup/data/models/registerData.dart';
 import 'package:customerapp/features/signup/presentation/bloc/signup-bloc.dart';
+import 'package:customerapp/features/signup/presentation/bloc/signup-events.dart';
 import 'package:customerapp/features/signup/presentation/bloc/signup-state.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:customerapp/features/login/data/models/user.dart';
@@ -20,7 +25,8 @@ class SignUpWidget extends StatefulWidget {
 }
 
 class  SignUpWidgetState extends State< SignUpWidget> {
-  SignUpBloc _bloc;
+  SignUpBloc _bloc = SignUpBloc(BaseSignUpState());
+
   TextEditingController companyNameController = TextEditingController();
   TextEditingController companyPhoneController = TextEditingController();
   TextEditingController companyAddressController = TextEditingController();
@@ -29,22 +35,18 @@ class  SignUpWidgetState extends State< SignUpWidget> {
   TextEditingController contactNameController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   TextEditingController contactPhoneController = TextEditingController();
+  TextEditingController otherIndustryController = TextEditingController();
 
-  bool _userNameValidate = false;
-  UserModel user = new UserModel(email: '');
+  RegisterModel registerData = new RegisterModel(email: '');
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool _clicked = false;
-  Item selectedUser;
-  List<Item> users = <Item>[
-    const Item('Android','Android'),
-    const Item('Flutter','Flutter'),
-    const Item('ReactNative','ReactNative'),
-    const Item('iOS','iOS'),
-  ];
+
+  DropDownDataModel selectedIndustry;
+  List<DropDownDataModel> industries = [];
 
   @override
   void initState() {
-    _bloc =  SignUpBloc(BaseSignUpState());
+    _bloc.add(GetIndustryEvent());
     print(translator.currentLanguage);
     super.initState();
   }
@@ -58,12 +60,30 @@ class  SignUpWidgetState extends State< SignUpWidget> {
     else
       return null;
   }
-
   String validatePassword(String value) {
-    if (value.isEmpty)
+    if (value.isEmpty || value.length < 6)
       return  translator.translate('passwordError');
     else
       return null;
+  }
+  String validateMobile(String value,{bool isOptional = false}) {
+  if(isOptional && (value==null || value.isEmpty)){
+  return null;
+  }
+  if (!isOptional || value.isNotEmpty) {
+    return RegExp(r'^01(0|1|2|5){1}[0-9]{8}$').hasMatch(value) ? null :  translator.translate('required') ;
+  }
+  return null;
+  }
+
+  showAlertDialog(title,msg,type) {
+    // show the dialog
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return  AdvanceCustomAlert(title,msg,type);
+      },
+    );
   }
 
   @override
@@ -77,226 +97,365 @@ class  SignUpWidgetState extends State< SignUpWidget> {
   Widget build(BuildContext context) {
     // TODO: implement build
       return Scaffold(
-//      appBar: AppBar(
-//      title: Text(translator.translate('signUp'),style: TextStyle(fontFamily: FONT_FAMILY)),
-//      centerTitle: true,
-//    ),
     backgroundColor: Colors.white,
     body:SingleChildScrollView(
     child: Column(
           children: <Widget>[
-                        ClipPath(
-                child: Container(
-                  width: MediaQuery.of(context).size.width,
-                  height: 150,
-                  color: Colors.blue,
-                  child: Center(
-          child: Container(
-          height: 100,
-          padding: EdgeInsets.only(top:50.0),
-          /*decoration: BoxDecoration(
+//            ClipPath(
+//                child: Container(
+//                  width: MediaQuery.of(context).size.width,
+//                  height: 110,
+//                  color: Colors.blue,
+//                  child: Center(
+//                    child: Container(
+//                        height: 100,
+//                        padding: EdgeInsets.only(top:50.0),
+//                        child: Text(translator.translate('signUp'),style: TextStyle(fontFamily: FONT_FAMILY, color: Colors.white ,
+//                            fontWeight: FontWeight.w400, fontSize: 25)),
+//                    ),
+//                  ),
+//                ),
+//                clipper: CustomClipPath(),
+//              ),
+            Padding(
+              padding: const EdgeInsets.only(top: 25.0),
+              child: Center(
+                child:  Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                    Container(
+                    width: 180,
+                    height: 90,
+                    /*decoration: BoxDecoration(
                         color: Colors.red,
                         borderRadius: BorderRadius.circular(50.0)),*/
-          child: Text(translator.translate('signUp'),style: TextStyle(fontFamily: FONT_FAMILY, color: Colors.white , fontWeight: FontWeight.w400, fontSize: 25))
-          ),
-    ),
-                ),
-                clipper: CustomClipPath(),
+                    child:  Image.asset('assets/images/cemex.jpg')),
+                  Text(translator.translate('signUp'),style: TextStyle(fontFamily: FONT_FAMILY, color: Colors.grey ,
+                            fontWeight: FontWeight.w400, fontSize: 16))
+                ])
+
               ),
-//            Padding(
-//              padding: const EdgeInsets.only(top: 30.0),
-//              child: Center(
-//                child: Container(
-//                    width: 200,
-//                    height: 125,
-//                    /*decoration: BoxDecoration(
-//                        color: Colors.red,
-//                        borderRadius: BorderRadius.circular(50.0)),*/
-//                    child: Image.asset('assets/images/cemex.jpg')),
-//              ),
-//            ),
+            ),
             BlocConsumer(
                 cubit: _bloc,
                 builder: (context, state) {
-                  if (state is  SignUpFailedState) {
-                    if (_clicked) {
-                      _clicked = false;
-                      Navigator.pop(context);
-                    }
-                  }
-
-                  return Form(
-                    key: _formKey,
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                    child: Column(
+                  return Container(
+                      child: Form(
+                        key: _formKey,
+                        autovalidateMode: AutovalidateMode.disabled,
+                        child: Column(
                         children: <Widget>[
                           Padding(
                               padding: EdgeInsets.symmetric(horizontal: 15),
-                              child: Card(
-                            child: Column(
-                            children: <Widget>[
-                              Padding(
-                                //padding: const EdgeInsets.only(left:15.0,right: 15.0,top:0,bottom: 0),
-                                padding: EdgeInsets.symmetric(horizontal: 15),
-                                child: TextFormField(
-                                  decoration: InputDecoration(
-                                      labelText: translator.translate('companyName'),
-                                      hintText: translator.translate('companyName'),
-                                      labelStyle: TextStyle(fontFamily: FONT_FAMILY,fontWeight: FontWeight.w600)
-                                  ),
-                                  style: TextStyle(fontFamily: FONT_FAMILY,fontWeight: FontWeight.w400, ),
-                                  keyboardType: TextInputType.text,
-                                  controller: companyNameController,
-                                  validator: (value) => value == null ? translator.translate('required') : null,
+                                child: Column(
+                                    children: <Widget>[
+                                      Container(
+                                        child: Stack(
+                                            children: <Widget>[
+                                              Container(
+                                                child: Column(
+                                                    children: <Widget>[
+                                                    Padding(
+                                                      padding: const EdgeInsets.only(left:15.0,right: 15.0,top:10,bottom: 0),
+                                                   //   padding: EdgeInsets.symmetric(horizontal: 15),
+                                                      child: TextFormField(
+                                                        decoration: InputDecoration(
+                                                           labelText: translator.translate('name'),
+                                                            //hintText: translator.translate('companyName'),
+                                                            contentPadding: EdgeInsets.only(top: 1.0,bottom: 0.0),
+//                                                            prefixIcon: const Icon( Icons.label, ),
+                                                            icon: const Icon( Icons.label, color: Colors.orange ),
+//                                                            labelStyle: TextStyle(fontFamily: FONT_FAMILY,fontWeight: FontWeight.w400,)
+                                                        ),
+                                                        style: TextStyle(fontFamily: FONT_FAMILY,fontWeight: FontWeight.w400, color: Colors.grey),
+                                                        keyboardType: TextInputType.text,
+                                                        controller: companyNameController,
+                                                        validator: (value) => value == null ? translator.translate('required') : null,
+                                                        onChanged: (String val) {
+                                                          this.registerData?.compnayName = companyNameController.text.toString();
+                                                        },
+                                                      ),
+                                                    ),
+                                                    Padding(
+                                                      //padding: const EdgeInsets.only(left:15.0,right: 15.0,top:0,bottom: 0),
+                                                      padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10.0),
+                                                      child: TextFormField(
+                                                        decoration: InputDecoration(
+                                                           labelText: translator.translate('phone'),
+//                                                            hintText: translator.translate('companyPhone'),
+//                                                            border: OutlineInputBorder(),
+//                                                            prefixIcon: const Icon( Icons.call, ),
+                                                            icon: const Icon( Icons.call, color: Colors.orange ),
+                                                            contentPadding: EdgeInsets.only(top: 1.0,bottom: 0.0),
 
-                                ),
-                              ),
-                              Padding(
-                                //padding: const EdgeInsets.only(left:15.0,right: 15.0,top:0,bottom: 0),
-                                padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10.0),
-                                child: TextFormField(
-                                  decoration: InputDecoration(
+//                                                            labelStyle: TextStyle(fontFamily: FONT_FAMILY,fontWeight: FontWeight.w600,)
+                                                        ),
+                                                        style: TextStyle(fontFamily: FONT_FAMILY,fontWeight: FontWeight.w400,
+                                                            color: Colors.grey),
+                                                        keyboardType: TextInputType.number,
+                                                        inputFormatters: <TextInputFormatter>[
+                                                          FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                                                        ],
+                                                        controller: companyPhoneController,
+                                                        validator: (value) => validateMobile(value,isOptional: true),
+                                                        onChanged: (String val) {
+                                                          this.registerData?.compnayPhone = companyPhoneController.text.toString();
+                                                        },
+                                                      ),
+                                                    ),
+                                                    Padding(
+                                                      //padding: const EdgeInsets.only(left:15.0,right: 15.0,top:0,bottom: 0),
+                                                      padding: EdgeInsets.symmetric(horizontal: 15),
+                                                      child: TextFormField(
+                                                        decoration: InputDecoration(
+                                                      labelText: translator.translate('address'),
+//                                                            hintText: translator.translate('companyAddress'),
+//                                                            border: OutlineInputBorder(),
+                                                            contentPadding: EdgeInsets.only(top: 1.0,bottom: 0.0),
+//                                                            prefixIcon: const Icon( Icons.home, ),
+                                                        icon: const Icon( Icons.home,color: Colors.orange  ),
+//                                                            labelStyle: TextStyle(fontFamily: FONT_FAMILY,fontWeight: FontWeight.w600,)
+                                                        ),
+                                                        style: TextStyle(fontFamily: FONT_FAMILY,fontWeight: FontWeight.w400,
+                                                            color: Colors.grey),
+                                                        keyboardType: TextInputType.text,
+                                                        controller: companyAddressController,
+                                                        onChanged: (String val) {
+                                                          this.registerData?.compnayAddress = companyAddressController.text.toString();
+                                                        },
+                                                      ),
+                                                    ),
+                                                    Padding(
+                                                      padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10.0),
+                                                      child:DropdownButtonFormField<DropDownDataModel>(
+                                                        decoration: InputDecoration(
+                                                            labelText: translator.translate('companyIndustry'),
+//                                                            border: OutlineInputBorder(),
+                                                            contentPadding: EdgeInsets.only(top: 1.0,bottom: 0.0),
+//                                                            prefixIcon: const Icon( Icons.whatshot, ),
+                                                        icon: const Icon( Icons.whatshot,color: Colors.orange  ),
+//                                                            labelStyle: TextStyle(fontFamily: FONT_FAMILY,fontWeight: FontWeight.w600,)
+                                                        ),
+                                                          style: TextStyle(fontFamily: FONT_FAMILY,fontWeight: FontWeight.w400,
+                                                              color: Colors.grey),
+                                                        validator: (value) => value == null ? translator.translate('required') : null,
+                                                        value: selectedIndustry,
+                                                        isExpanded: true,
+                                                        onChanged: (DropDownDataModel value) {
+                                                          this.registerData?.industryId = value.id;
+                                                          if (value.nameEn != 'Other') this.registerData?.newIndustry = '';
+                                                          setState(() {
+                                                            selectedIndustry = value;
+                                                          });
 
-                                      labelText: translator.translate('companyPhone'),
-                                      hintText: translator.translate('companyPhone'),
-                                      labelStyle: TextStyle(fontFamily: FONT_FAMILY,fontWeight: FontWeight.w600)
-                                  ),
-                                  style: TextStyle(fontFamily: FONT_FAMILY,fontWeight: FontWeight.w400, ),
-                                  keyboardType: TextInputType.phone,
-                                  controller: companyPhoneController,
-                                  validator: (value) => value == null ? translator.translate('required') : null,
+                                                        },
 
-                                ),
-                              ),
-                              Padding(
-                                //padding: const EdgeInsets.only(left:15.0,right: 15.0,top:0,bottom: 0),
-                                padding: EdgeInsets.symmetric(horizontal: 15),
-                                child: TextFormField(
-                                  decoration: InputDecoration(
+                                                        items: industries.map((DropDownDataModel industry) {
+                                                          return  DropdownMenuItem<DropDownDataModel>(
+                                                            value: industry,
+                                                            child: Row(
+                                                              children: <Widget>[
+                                                                Text(
+                                                                  (translator.currentLanguage == 'en')?  industry.nameEn : industry.nameAr,
+                                                                  style:  TextStyle(fontWeight: FontWeight.w400, color: Colors.black45, fontFamily: FONT_FAMILY),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          );
+                                                        }).toList(),
+                                                      ) ,
+                                                    ),
+                                                    if(selectedIndustry?.nameEn == 'Other')
+                                                      Padding(
+                                                        //padding: const EdgeInsets.only(left:15.0,right: 15.0,top:0,bottom: 0),
+                                                        padding: EdgeInsets.symmetric(horizontal: 15),
+                                                        child:  TextFormField(
+                                                          decoration: InputDecoration(
+                                                            labelText: translator.translate('other'),
+//                                                              hintText: translator.translate('other'),
+//                                                              border: OutlineInputBorder(),
+//                                                              prefixIcon: const Icon( Icons.edit, ),
+                                                          icon: const Icon( Icons.edit, color: Colors.orange ),
+                                                              contentPadding: EdgeInsets.only(top: 1.0,bottom: 0.0),
+//                                                              labelStyle: TextStyle(fontFamily: FONT_FAMILY,fontWeight: FontWeight.w600,)
+                                                          ),
+                                                          style: TextStyle(fontFamily: FONT_FAMILY,fontWeight: FontWeight.w400,
+                                                              color: Colors.grey),
+                                                          keyboardType: TextInputType.text,
+                                                          controller: otherIndustryController,
+                                                          validator: (value) => value == null ? translator.translate('required') : null,
+                                                          onChanged: (String val) {
+                                                            this.registerData?.newIndustry = otherIndustryController.text.toString();
+                                                          },
+                                                        ),
 
-                                      labelText: translator.translate('companyAddress'),
-                                      hintText: translator.translate('companyAddress'),
-                                      labelStyle: TextStyle(fontFamily: FONT_FAMILY,fontWeight: FontWeight.w600)
-                                  ),
-                                  style: TextStyle(fontFamily: FONT_FAMILY,fontWeight: FontWeight.w400, ),
-                                  keyboardType: TextInputType.text,
-                                  controller: companyAddressController,
-                                  validator: (value) => value == null ? translator.translate('required') : null,
+                                                      ),
+                                                  ]),
+                                                decoration: BoxDecoration(
+                                                    border: Border.all(width: 2.0,color: Colors.grey),
+                                                    shape: BoxShape.rectangle,
+                                                    borderRadius: BorderRadius.circular(10.0)
+                                                ),
+                                                padding: EdgeInsets.symmetric(vertical: 20.0),
+                                                margin:  EdgeInsets.symmetric(vertical: 15.0,horizontal: 0.0),
+                                              ),
+                                              Container(
 
-                                ),
-                              ),
-                              Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10.0),
-                                  child:DropdownButtonFormField<Item>(
-                                    decoration: InputDecoration(
-                                        labelText: translator.translate('companyIndustry'),
-                                        hintMaxLines: 1,
-                                        labelStyle: TextStyle(fontFamily: FONT_FAMILY,fontWeight: FontWeight.w600)
-                                    ),
-                                    style: TextStyle(fontFamily: FONT_FAMILY,fontWeight: FontWeight.w400, color: Colors.black45),
-                                    validator: (value) => value == null ? translator.translate('required') : null,
-                                    // iconSize: 40.0,
-                                    value: selectedUser,
-                                    isExpanded: true,
-                                    onChanged: (Item value) {
-                                      setState(() {
-                                        selectedUser = value;
-                                      });
-                                    },
-                                    items: users.map((Item user) {
-                                      return  DropdownMenuItem<Item>(
-                                        value: user,
-                                        child: Row(
-                                          children: <Widget>[
-                                            Text(user.name ,
-                                              style:  TextStyle(fontWeight: FontWeight.w400, color: Colors.black45, fontFamily: FONT_FAMILY),
-                                            ),
-                                          ],
-                                        ),
-                                      );
-                                    }).toList(),) ,
-                              ),
-                              Padding(
-                                //padding: const EdgeInsets.only(left:15.0,right: 15.0,top:0,bottom: 0),
-                                  padding: EdgeInsets.symmetric(horizontal: 15),
-                                  child:Row(children: [
-                                    Expanded(
-                                      flex: 1,
-                                      child:   TextFormField(
-                                          decoration: InputDecoration(
-
-                                              labelText: translator.translate('contactName'),
-                                              hintText: translator.translate('contactName'),
-                                              labelStyle: TextStyle(fontFamily: FONT_FAMILY,fontWeight: FontWeight.w600)
-                                          ),
-                                          style: TextStyle(fontFamily: FONT_FAMILY,fontWeight: FontWeight.w400, ),
-                                          keyboardType: TextInputType.text,
-                                          controller: contactNameController,
-                                        validator: (value) => value == null ? translator.translate('required') : null,
-
-                                      ),),
-
-                                    SizedBox(width:20.0),
-                                    Expanded(
-                                      flex: 1,
-                                      child:  TextFormField(
-                                        decoration: InputDecoration(
-
-                                            labelText: translator.translate('contactPhone'),
-                                            hintText: translator.translate('contactPhone'),
-                                            labelStyle: TextStyle(fontFamily: FONT_FAMILY,fontWeight: FontWeight.w600)
-                                        ),
-                                        style: TextStyle(fontFamily: FONT_FAMILY,fontWeight: FontWeight.w400, ),
-                                        keyboardType: TextInputType.phone,
-                                        controller: contactPhoneController,
-                                        validator: (value) => value == null ? translator.translate('required') : null,
-
+                                                margin: EdgeInsets.only(top: 0,left: 0,right: 0),
+                                                width: 150,
+                                                height: 30,
+                                                decoration: BoxDecoration(
+                                                    borderRadius: (translator.currentLanguage == 'en' ) ?
+                                                    BorderRadius.only(topRight: Radius.circular(10), bottomRight: Radius.circular(10))
+                                                        : BorderRadius.only(topLeft: Radius.circular(10), bottomLeft: Radius.circular(10)),
+                                                    border: Border.all(color: Colors.orange, width: 3),
+                                                    color: Colors.orange
+                                                ),
+                                                child: Row(
+                                                    mainAxisAlignment: MainAxisAlignment.start,
+                                                    children: [
+                                                      SizedBox(width: 10,),
+                                                      Text('Company Data',style: TextStyle(fontFamily: FONT_FAMILY,
+                                                          fontWeight: FontWeight.w700,color: Colors.white)),
+                                                    ]
+                                                ),
+                                              ),
+                                            ]),
                                       ),
-                                    ),
-                                  ],)
-                              ),
-                              Padding(
-                                //padding: const EdgeInsets.only(left:15.0,right: 15.0,top:0,bottom: 0),
-                                padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10.0),
-                                child: TextFormField(
-                                  decoration: InputDecoration(
+                                      Container(
+                                      child: Stack(
+                                      children: <Widget>[
+                                      Container(
+                                      child: Column(
+                                      children: <Widget>[
+                                        Padding(
+                                          //padding: const EdgeInsets.only(left:15.0,right: 15.0,top:0,bottom: 0),
+                                            padding: EdgeInsets.symmetric(horizontal: 15),
+                                            child:Row(children: [
+                                              Expanded(
+                                                  flex: 1,
+                                                  child:
+                                                  TextFormField(
+                                                    decoration: InputDecoration(
+                                                        labelText: translator.translate('name'),
+//                                              hintText: translator.translate('contactName'),
+//                                                      prefixIcon: const Icon( Icons.person, ),
+                                                      icon: const Icon( Icons.person, color: Colors.orange ),
+//                                                        labelStyle: TextStyle(fontFamily: FONT_FAMILY,fontWeight: FontWeight.w600)
+                                                    ),
+                                                    style: TextStyle(fontFamily: FONT_FAMILY,fontWeight: FontWeight.w400, ),
+                                                    keyboardType: TextInputType.text,
+                                                    controller: contactNameController,
+                                                    validator: (value) => value == null ? translator.translate('required') : null,
+                                                    onChanged: (String val) {
+                                                      this.registerData?.contactName = contactNameController.text.toString();
+                                                    },
+                                                  )
+                                              ),
+                                              SizedBox(width:20.0),
+                                              Expanded(
+                                                flex: 1,
+                                                child:  TextFormField(
+                                                  decoration: InputDecoration(
+                                                      labelText: translator.translate('phone'),
+//                                            hintText: translator.translate('contactPhone'),
+//                                                      prefixIcon: const Icon( Icons.call, ),
 
-                                      labelText: translator.translate('contactEmail'),
-                                      hintText: translator.translate('contactEmail'),
-                                      labelStyle: TextStyle(fontFamily: FONT_FAMILY,fontWeight: FontWeight.w600)
-                                  ),
-                                  style: TextStyle(fontFamily: FONT_FAMILY,fontWeight: FontWeight.w400, ),
-                                  keyboardType: TextInputType.emailAddress,
-                                  controller: contactEmailController,
-                                  validator: validateEmail,
-                                ),
-                              ),
-                              Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 15,),
-                                child: TextFormField(
-                                  decoration: InputDecoration(
+                                                    icon: const Icon( Icons.call, color: Colors.orange ),
+//                                                      labelStyle: TextStyle(fontFamily: FONT_FAMILY,fontWeight: FontWeight.w600)
+                                                  ),
+                                                  style: TextStyle(fontFamily: FONT_FAMILY,fontWeight: FontWeight.w400, ),
+                                                  keyboardType: TextInputType.number,
+                                                  inputFormatters: <TextInputFormatter>[
+                                                    FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                                                  ],
+                                                  controller: contactPhoneController,
+                                                  validator: (value) => validateMobile(value,isOptional: false),
+                                                  onChanged: (String val) {
+                                                    this.registerData?.contactPhone = contactPhoneController.text.toString();
+                                                  },
+                                                ),
+                                              ),
+                                            ],)
+                                        ),
+                                        Padding(
+                                          //padding: const EdgeInsets.only(left:15.0,right: 15.0,top:0,bottom: 0),
+                                          padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10.0),
+                                          child: TextFormField(
+                                            decoration: InputDecoration(
+                                                labelText: translator.translate('email'),
+//                                      hintText: translator.translate('contactEmail'),
+//                                                prefixIcon: const Icon( Icons.email, ),
 
-                                      labelText: translator.translate('password'),
-                                      hintText: translator.translate('passwordHint'),
-                                      labelStyle: TextStyle(fontFamily: FONT_FAMILY,fontWeight: FontWeight.w600)
-                                  ),
-                                  style: TextStyle(fontFamily: FONT_FAMILY,fontWeight: FontWeight.w400, ),
-                                  keyboardType: TextInputType.visiblePassword,
-                                  obscureText: true,
-                                  controller: passwordController,
-                                  validator: validatePassword,
-                                  onChanged: (String val) {
-                                    this.user?.password = passwordController.text.toString();
-                                  },
-                                ),
-                              ),
+                                             icon: const Icon( Icons.email,color: Colors.orange  ),
+//                                                labelStyle: TextStyle(fontFamily: FONT_FAMILY,fontWeight: FontWeight.w600)
+                                            ),
+                                            style: TextStyle(fontFamily: FONT_FAMILY,fontWeight: FontWeight.w400, ),
+                                            keyboardType: TextInputType.emailAddress,
+                                            controller: contactEmailController,
+                                            validator: validateEmail,
+                                            onChanged: (String val) {
+                                              this.registerData?.email = contactEmailController.text.toString();
+                                            },
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: EdgeInsets.symmetric(horizontal: 15,),
+                                          child: TextFormField(
+                                            decoration: InputDecoration(
+                                                labelText: translator.translate('password'),
+//                                      hintText: translator.translate('passwordHint'),
+//                                                prefixIcon: const Icon( Icons.lock_outline, ),
+
+                                            icon: const Icon( Icons.lock_outline,color: Colors.orange  ),
+//                                                labelStyle: TextStyle(fontFamily: FONT_FAMILY,fontWeight: FontWeight.w600)
+                                            ),
+                                            style: TextStyle(fontFamily: FONT_FAMILY,fontWeight: FontWeight.w400, ),
+                                            keyboardType: TextInputType.visiblePassword,
+                                            obscureText: true,
+                                            controller: passwordController,
+                                            validator: validatePassword,
+                                            onChanged: (String val) {
+                                              this.registerData?.password = passwordController.text.toString();
+                                            },
+                                          ),
+                                        ),
+                                      ]),
+                                        decoration: BoxDecoration(
+                                            border: Border.all(width: 2.0,color: Colors.grey),
+                                            shape: BoxShape.rectangle,
+                                            borderRadius: BorderRadius.circular(10.0)
+                                        ),
+                                        padding: EdgeInsets.symmetric(vertical: 20.0),
+                                        margin:  EdgeInsets.symmetric(vertical: 15.0,horizontal: 0.0),
+                                      ),
+                                        Container(
+                                          margin: EdgeInsets.only(top: 0,left: 0,right: 0),
+                                          width: 150,
+                                          height: 30,
+                                          decoration: BoxDecoration(
+                                              borderRadius: (translator.currentLanguage == 'en' ) ?
+                                              BorderRadius.only(topRight: Radius.circular(10), bottomRight: Radius.circular(10))
+                                                  : BorderRadius.only(topLeft: Radius.circular(10), bottomLeft: Radius.circular(10)),
+                                              border: Border.all(color: Colors.orange, width: 3),
+                                              color: Colors.orange
+                                          ),
+                                          child: Row(
+                                              mainAxisAlignment: MainAxisAlignment.start,
+                                              children: [
+                                                SizedBox(width: 10,),
+                                                Text('Contact Data',style: TextStyle(fontFamily: FONT_FAMILY,
+                                                    fontWeight: FontWeight.w700,color: Colors.white)),
+                                              ]
+                                          ),
+                                        ),                                      ])),
+
                              SizedBox(
-                                height: 15,
+                                height: 10,
                              ),
+
+
                   ]),
-                    color: Colors.white,
-                    elevation: 0,
-                          )
                           ),
 
                           if (state is  SignUpFailedState)  Padding(
@@ -312,17 +471,16 @@ class  SignUpWidgetState extends State< SignUpWidget> {
                             decoration: BoxDecoration(  color: Colors.blue, borderRadius: BorderRadius.circular(5),),
                             child: FlatButton(
                               onPressed: () {
+//                                _bloc.add(SignUpEvent(registerModel: this.registerData));
+
                                 if (!_formKey.currentState.validate()) {
                                   return;
                                 }
                                 if (_formKey.currentState.validate()) {
-                                  setState(() {
-                                    _clicked = true;
-                                  });
-                                  _bloc.add(LoginEvent(userModel: this.user));
-                                  loadingAlertDialog(context);
-                                }
 
+                                  _bloc.add(SignUpEvent(registerModel: this.registerData));
+                                //  loadingAlertDialog(context);
+                                }
                               },
                               child: Text(
                                 translator.translate('save'),
@@ -331,15 +489,32 @@ class  SignUpWidgetState extends State< SignUpWidget> {
                             ),
                           ),
                         ]),
-                  );
+                  ),);
                 },
                 listener: (context, state) {
-                  if (state is LoginSuccessState) {
-                    Navigator.pop(context);
-                    Navigator.pushReplacementNamed(context, HomeWidget.routeName);
+                  if (state is GetIndustrySuccessState) {
+                    print(state.industryData);
+                    setState(() {
+                      industries = state.industryData;
+                      final other = DropDownDataModel.fromJson({"id": 0, "nameEN": "Other", "nameAR": "أخرى", "active": true});
+                      industries.add(other);
+                    });
                   }
+                  if (state is SignUpSuccessState) {
+                    Navigator.pop(context);
+                    var successData = state.successData;
+                    var msg = (translator.currentLanguage == 'en' ) ? successData.msgEN : successData.msgAR;
+                    showAlertDialog('success', msg, true);
+                    _formKey.currentState.reset();
+                  }
+                  if (state is SignUpLoadingState ) loadingAlertDialog(context);
+                  if (state is GetIndustrySuccessState) Navigator.of(context).pop();
 
-
+                  if (state is SignUpFailedState){
+                    Navigator.of(context).pop();
+                    var msg = state.error.message;
+                    showAlertDialog('error', msg, false);
+                  }
                 }),
 
             SizedBox(
@@ -378,10 +553,4 @@ class CustomClipPath extends CustomClipper<Path> {
   }
   @override
   bool shouldReclip(CustomClipper<Path> oldClipper) => false;
-}
-
-class Item {
-  const Item(this.name,this.value);
-  final String name;
-  final String value;
 }

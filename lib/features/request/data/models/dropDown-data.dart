@@ -1,15 +1,15 @@
 // To parse this JSON data, do
 //
-//     final truckDataModel = truckDataModelFromJson(jsonString);
+//     final dropDownDataModel = dropDownDataModelFromJson(jsonString);
 
 import 'dart:convert';
 
-TruckDataModel truckDataModelFromJson(String str) => TruckDataModel.fromJson(json.decode(str));
+DropDownDataModel dropDownDataModelFromJson(String str) => DropDownDataModel.fromJson(json.decode(str));
 
-String truckDataModelToJson(TruckDataModel data) => json.encode(data.toJson());
+String dropDownDataModelToJson(DropDownDataModel data) => json.encode(data.toJson());
 
-class TruckDataModel {
-  TruckDataModel({
+class DropDownDataModel {
+  DropDownDataModel({
     this.id,
     this.nameEn,
     this.nameAr,
@@ -21,20 +21,20 @@ class TruckDataModel {
   String nameAr;
   bool active;
 
-  TruckDataModel copyWith({
+  DropDownDataModel copyWith({
     int id,
     String nameEn,
     String nameAr,
     bool active,
   }) =>
-      TruckDataModel(
+      DropDownDataModel(
         id: id ?? this.id,
         nameEn: nameEn ?? this.nameEn,
         nameAr: nameAr ?? this.nameAr,
         active: active ?? this.active,
       );
 
-  factory TruckDataModel.fromJson(Map<String, dynamic> json) => TruckDataModel(
+  factory DropDownDataModel.fromJson(Map<String, dynamic> json) => DropDownDataModel(
     id: json["id"] == null ? null : json["id"],
     nameEn: json["nameEN"] == null ? null : json["nameEN"],
     nameAr: json["nameAR"] == null ? null : json["nameAR"],

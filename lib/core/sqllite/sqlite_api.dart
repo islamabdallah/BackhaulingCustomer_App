@@ -6,7 +6,7 @@ class DBHelper {
   static Future<Database> database() async {
     final dbPath = await sql.getDatabasesPath();
     return sql.openDatabase(path.join(dbPath, 'custemer_db.db'),
-        onCreate: _create, version: 2);
+        onCreate: _create, version: 3);
   }
 
  static  Future _create(Database db, int version) async {
@@ -19,7 +19,7 @@ class DBHelper {
             'contactName TEXT,'
             'contactPhone TEXT,'
             'industryId INTEGER,'
-            'industryObj TEXT,'
+            'status TEXT,'
             'industry TEXT,'
             'isActive  INTEGER DEFAULT 0,'
             'userName TEXT,'

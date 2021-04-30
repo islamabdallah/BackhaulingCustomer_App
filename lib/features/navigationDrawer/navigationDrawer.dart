@@ -40,8 +40,9 @@ class NavigationDrawerState extends State<NavigationDrawer> {
 
   currentUser() async{
     var data =  await DBHelper.getData('cemex_user');
+    var user =  data.length > 0 ? data[0] : userModel;
     setState(() {
-      if (data.length > 0) userModel = UserModel.fromJson(data[0]);
+      if (data.length > 0) userModel = UserModel.fromSqlJson(user);
     });
   }
 
@@ -145,10 +146,11 @@ class NavigationDrawerState extends State<NavigationDrawer> {
             leading:   Icon(Icons.logout,color: Colors.red,),
             title: Text(translator.translate('logout'),
                 style: TextStyle(fontFamily: FONT_FAMILY, fontWeight: FontWeight.w400,)),
-            onTap: () {
-              DBHelper.deleteUser(userModel.id);
+            onTap: () async{
+             await DBHelper.deleteUser(userModel.id);
               Navigator.pop(context);
-              Navigator.pushReplacementNamed(context, LoginWidget.routeName);
+              Navigator.of(context).pushNamedAndRemoveUntil(LoginWidget.routeName, (Route<dynamic> route) => false);
+
             },
           ),
         ],
